@@ -333,3 +333,23 @@
   justify-content: center;
   align-items: center;
 }
+
+.join-combat-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid #4caf50;
+  background: linear-gradient(145deg, #4caf50 0%, #388e3c 100%);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.join-combat-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}

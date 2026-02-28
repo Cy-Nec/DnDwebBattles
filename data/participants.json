@@ -12,15 +12,33 @@
     {
       "type": "player",
       "name": "толя",
-      "hp": 12,
+      "hp": 13,
       "friend": true,
       "id": 1772119743809,
       "initiative": 21,
       "inCombat": true
+    },
+    {
+      "type": "npc",
+      "name": "Мышь валерий",
+      "hp": 23,
+      "friend": true,
+      "id": 1772256692695,
+      "initiative": 4,
+      "inCombat": true
+    },
+    {
+      "type": "npc",
+      "name": "Валерий мышь",
+      "hp": 213,
+      "friend": false,
+      "id": 1772256805707,
+      "initiative": 3,
+      "inCombat": true
     }
   ],
   "combatState": {
-    "round": 2,
-    "currentTurnIndex": 1
+    "round": 1,
+    "currentTurnIndex": 0
   }
 }

@@ -107,6 +107,12 @@ function DmPage({ onBack }) {
     ))
   }
 
+  const handleJoinCombat = (id) => {
+    setParticipants(participants.map(p =>
+      p.id === id ? { ...p, inCombat: true } : p
+    ))
+  }
+
   const handleRevive = (id) => {
     setParticipants(participants.map(p =>
       p.id === id ? { ...p, dead: false } : p
@@ -224,6 +230,7 @@ function DmPage({ onBack }) {
                     onRemove={handleRemoveParticipant}
                     onUpdateInitiative={handleUpdateInitiative}
                     onUpdateHp={handleUpdateHp}
+                    onJoinCombat={handleJoinCombat}
                   />
                 ))}
               </div>

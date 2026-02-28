@@ -11,7 +11,9 @@ function ParticipantCard({
   onChangeHp,
   onDeath,
   onLeaveCombat,
-  onRevive
+  onRevive,
+  onJoinCombat,
+  currentPlayerId
 }) {
   const icon = getParticipantIcon(participant)
   const isCombat = mode === 'combat' || mode === 'combat-dm'
@@ -53,6 +55,9 @@ function ParticipantCard({
 
   // Режим боя для игрока
   if (mode === 'combat-player') {
+    // Скрывать HP у NPC (игрок не должен видеть здоровье NPC)
+    const isNpc = participant.type === 'npc'
+    
     return (
       <div className={`participant-card combat-card ${participant.type} ${participant.type === 'npc' ? (participant.friend ? 'friend' : 'enemy') : ''} ${isCurrent ? 'current-turn' : ''}`}>
         {isCurrent && (
@@ -63,9 +68,11 @@ function ParticipantCard({
           <span className="participant-type">{participant.type === 'player' ? '🎮' : (participant.friend ? '🛡️' : '⚔️')}</span>
           <span className="participant-name">{participant.name}</span>
         </div>
-        <div className="hp-display">
-          <span className="participant-hp">❤️ {participant.hp}</span>
-        </div>
+        {!isNpc && (
+          <div className="hp-display">
+            <span className="participant-hp">❤️ {participant.hp}</span>
+          </div>
+        )}
       </div>
     )
   }
@@ -117,6 +124,9 @@ function ParticipantCard({
         </div>
       </div>
       <div className="card-actions">
+        {!isDead && onJoinCombat && participant.initiative !== null && (
+          <button className="join-combat-btn" onClick={() => onJoinCombat(participant.id)} title="Вступить в бой">⚔️</button>
+        )}
         {!isDead && (
           <button className="remove-button" onClick={() => onRemove(participant.id)}>✕</button>
         )}

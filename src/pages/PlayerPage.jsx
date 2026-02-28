@@ -11,7 +11,7 @@ import {
 
 const API_URL = '/api/participants'
 
-function PlayerPage({ onBack }) {
+function PlayerPage({ onBack, playerId }) {
   const [participants, setParticipants] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [round, setRound] = useState(1)
@@ -95,6 +95,7 @@ function PlayerPage({ onBack }) {
                 participant={participant}
                 mode="combat-player"
                 isCurrent={isCurrentTurn(participant, currentTurnParticipants)}
+                currentPlayerId={playerId}
               />
             ))}
           </div>
