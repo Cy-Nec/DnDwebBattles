@@ -253,7 +253,9 @@
 
 .combat-card.current-turn {
   border-color: #ff9800;
-  box-shadow: 0 0 20px rgba(255, 152, 0, 0.5), inset 0 0 10px rgba(255, 152, 0, 0.1);
+  box-shadow:
+    0 0 20px rgba(255, 152, 0, 0.5),
+    inset 0 0 10px rgba(255, 152, 0, 0.1);
 }
 
 .turn-indicator {
@@ -272,6 +274,36 @@
   white-space: nowrap;
   box-shadow: 0 4px 15px rgba(255, 152, 0, 0.5);
   z-index: 10;
+}
+
+.skip-indicator {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(145deg, #9c27b0 0%, #7b1fa2 100%);
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.5);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skip-indicator img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+}
+
+.combat-card.skip-next-turn {
+  border-color: #9c27b0;
+  box-shadow:
+    0 0 15px rgba(156, 39, 176, 0.4),
+    inset 0 0 10px rgba(156, 39, 176, 0.1);
 }
 
 .combat-actions {
@@ -384,4 +416,53 @@
 .join-combat-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.skip-turn-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 2px solid #9c27b0;
+  background: linear-gradient(145deg, #9c27b0 0%, #7b1fa2 100%);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  padding: 0;
+}
+
+.skip-turn-btn img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+}
+
+.skip-turn-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
+}
+
+.skip-turn-btn.active {
+  border-color: #ffeb3b;
+  background: linear-gradient(145deg, #ffeb3b 0%, #fdd835 100%);
+}
+
+.skip-turn-btn.active img {
+  filter: brightness(0) invert(0);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(255, 235, 59, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
+  }
 }
