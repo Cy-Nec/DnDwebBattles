@@ -1,4 +1,9 @@
+import { useState } from "react";
 import { getParticipantIcon } from "../utils/combatUtils";
+import { statusesConfig } from "../config/statusesConfig";
+import StatusMenu from "./StatusMenu/StatusMenu";
+import SkipTurnModal from "./SkipTurnModal/SkipTurnModal";
+import StatusTooltip from "./StatusTooltip/StatusTooltip";
 import "./ParticipantCard.css";
 
 function ParticipantCard({
@@ -14,86 +19,144 @@ function ParticipantCard({
   onRevive,
   onJoinCombat,
   onSkipTurn,
+  onToggleStatus,
   currentPlayerId,
 }) {
+  const [isSkipModalOpen, setIsSkipModalOpen] = useState(false);
+  const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
   const icon = getParticipantIcon(participant);
   const isCombat = mode === "combat" || mode === "combat-dm";
   const isDead = participant.dead;
+  const activeStatuses = participant.statuses || [];
+
+  // Получить иконку статуса по ID
+  const getStatusIcon = (statusId) => {
+    const status = statusesConfig.find((s) => s.id === statusId);
+    return status ? status.icon : null;
+  };
 
   // Режим боя для ДМ
   if (mode === "combat-dm") {
     return (
       <div
-        className={`participant-card combat-card ${participant.type} ${participant.type === "npc" ? (participant.friend ? "friend" : "enemy") : ""} ${isCurrent ? "current-turn" : ""} ${participant.skipNextTurn ? "skip-next-turn" : ""}`}
+        className={`combat-card-wrapper ${isStatusMenuOpen ? "status-menu-open" : ""}`}
       >
-        {isCurrent && <div className="turn-indicator">⚔️ ХОД</div>}
-        {participant.skipNextTurn && (
-          <div className="skip-indicator">
-            <img src="/skip.svg" alt="Пропуск" />
+        <div
+          className={`participant-card combat-card ${participant.type} ${participant.type === "npc" ? (participant.friend ? "friend" : "enemy") : ""} ${isCurrent ? "current-turn" : ""} ${participant.skipNextTurn ? "skip-next-turn" : ""}`}
+        >
+          {isCurrent && <div className="turn-indicator">⚔️ ХОД</div>}
+          <div className="card-top-indicators">
+            <StatusMenu
+              participant={participant}
+              onToggleStatus={onToggleStatus}
+              onOpenChange={setIsStatusMenuOpen}
+            />
+            {participant.skipNextTurn && (
+              <div className="skip-indicator">
+                <img src="/skip.svg" alt="Пропуск" />
+              </div>
+            )}
           </div>
-        )}
-        <div className="initiative-badge">{participant.initiative}</div>
-        <div className="participant-info">
-          <span className="participant-type">
-            {participant.type === "player"
-              ? "🎮"
-              : participant.friend
-                ? "🛡️"
-                : "⚔️"}
-          </span>
-          <span className="participant-name">{participant.name}</span>
-        </div>
-        <div className="combat-stats">
-          <div className="stat-group">
-            <label>Иниц.</label>
-            <span className="stat-value">{participant.initiative}</span>
+          <div className="initiative-badge">{participant.initiative}</div>
+          <div className="participant-info">
+            <span className="participant-type">
+              {participant.type === "player"
+                ? "🎮"
+                : participant.friend
+                  ? "🛡️"
+                  : "⚔️"}
+            </span>
+            <span className="participant-name">{participant.name}</span>
           </div>
-          <div className="stat-group">
-            <label>ХП</label>
-            <div className="hp-controls">
-              <button
-                className="hp-btn"
-                onClick={() => onChangeHp(participant.id, -1)}
-              >
-                −
-              </button>
-              <span className="stat-value hp-value">❤️ {participant.hp}</span>
-              <button
-                className="hp-btn"
-                onClick={() => onChangeHp(participant.id, 1)}
-              >
-                +
-              </button>
+          <div className="combat-stats">
+            <div className="stat-group">
+              <label>Иниц.</label>
+              <span className="stat-value">{participant.initiative}</span>
+            </div>
+            <div className="stat-group">
+              <label>ХП</label>
+              <div className="hp-controls">
+                <button
+                  className="hp-btn"
+                  onClick={() => onChangeHp(participant.id, -1)}
+                >
+                  −
+                </button>
+                <span className="stat-value hp-value">❤️ {participant.hp}</span>
+                <button
+                  className="hp-btn"
+                  onClick={() => onChangeHp(participant.id, 1)}
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="combat-actions">
-          <button
-            className="leave-combat-btn"
-            onClick={() => onLeaveCombat(participant.id)}
-            title="Выйти из боя"
-          >
-            🚪
-          </button>
-          <button
-            className="death-btn"
-            onClick={() => onDeath(participant.id)}
-            title="Смерть"
-          >
-            💀
-          </button>
+          <div className="combat-actions">
+            <button
+              className="leave-combat-btn"
+              onClick={() => onLeaveCombat(participant.id)}
+              title="Выйти из боя"
+            >
+              🚪
+            </button>
+            <button
+              className="death-btn"
+              onClick={() => onDeath(participant.id)}
+              title="Смерть"
+            >
+              💀
+            </button>
+          </div>
           <button
             className={`skip-turn-btn ${participant.skipNextTurn ? "active" : ""}`}
-            onClick={() => onSkipTurn(participant.id)}
+            onClick={() => {
+              if (participant.skipNextTurn) {
+                // Отмена пропуска при клике на активную кнопку
+                onSkipTurn(participant.id, 0);
+              } else {
+                setIsSkipModalOpen(true);
+              }
+            }}
             title={
               participant.skipNextTurn
-                ? "Отменить пропуск хода"
-                : "Пропустить следующий ход"
+                ? `Клик для отмены пропуска (${participant.skipTurnsCount || 1} ходов)`
+                : "Пропустить следующие ходы"
             }
           >
             <img src="/skip.svg" alt="Пропуск" />
+            {participant.skipNextTurn && participant.skipTurnsCount > 0 && (
+              <span className="skip-turn-count">
+                {participant.skipTurnsCount}
+              </span>
+            )}
           </button>
         </div>
+        {activeStatuses.length > 0 && (
+          <div className="status-column">
+            {activeStatuses.map((statusId) => {
+              const iconUrl = getStatusIcon(statusId);
+              const status = statusesConfig.find((s) => s.id === statusId);
+              return iconUrl ? (
+                <div key={statusId} className="status-icon-wrapper">
+                  <img
+                    src={iconUrl}
+                    alt={status.label || statusId}
+                    className="status-icon-column"
+                    style={{ "--status-color": status?.color }}
+                  />
+                  <StatusTooltip status={status} />
+                </div>
+              ) : null;
+            })}
+          </div>
+        )}
+        <SkipTurnModal
+          isOpen={isSkipModalOpen}
+          onClose={() => setIsSkipModalOpen(false)}
+          onConfirm={(rounds) => onSkipTurn(participant.id, rounds)}
+          defaultRounds={participant.skipTurnsCount || 1}
+        />
       </div>
     );
   }
@@ -104,29 +167,51 @@ function ParticipantCard({
     const isNpc = participant.type === "npc";
 
     return (
-      <div
-        className={`participant-card combat-card ${participant.type} ${participant.type === "npc" ? (participant.friend ? "friend" : "enemy") : ""} ${isCurrent ? "current-turn" : ""} ${participant.skipNextTurn ? "skip-next-turn" : ""}`}
-      >
-        {isCurrent && <div className="turn-indicator">⚔️ ХОД</div>}
-        {participant.skipNextTurn && (
-          <div className="skip-indicator">
-            <img src="/skip.svg" alt="Пропуск" />
+      <div className="combat-card-wrapper">
+        <div
+          className={`participant-card combat-card ${participant.type} ${participant.type === "npc" ? (participant.friend ? "friend" : "enemy") : ""} ${isCurrent ? "current-turn" : ""} ${participant.skipNextTurn ? "skip-next-turn" : ""}`}
+        >
+          {isCurrent && <div className="turn-indicator">⚔️ ХОД</div>}
+          <div className="card-top-indicators">
+            {participant.skipNextTurn && (
+              <div className="skip-indicator">
+                <img src="/skip.svg" alt="Пропуск" />
+              </div>
+            )}
           </div>
-        )}
-        <div className="initiative-badge">{participant.initiative}</div>
-        <div className="participant-info">
-          <span className="participant-type">
-            {participant.type === "player"
-              ? "🎮"
-              : participant.friend
-                ? "🛡️"
-                : "⚔️"}
-          </span>
-          <span className="participant-name">{participant.name}</span>
+          <div className="initiative-badge">{participant.initiative}</div>
+          <div className="participant-info">
+            <span className="participant-type">
+              {participant.type === "player"
+                ? "🎮"
+                : participant.friend
+                  ? "🛡️"
+                  : "⚔️"}
+            </span>
+            <span className="participant-name">{participant.name}</span>
+          </div>
+          {!isNpc && (
+            <div className="hp-display">
+              <span className="participant-hp">❤️ {participant.hp}</span>
+            </div>
+          )}
         </div>
-        {!isNpc && (
-          <div className="hp-display">
-            <span className="participant-hp">❤️ {participant.hp}</span>
+        {activeStatuses.length > 0 && (
+          <div className="status-column">
+            {activeStatuses.map((statusId) => {
+              const iconUrl = getStatusIcon(statusId);
+              const status = statusesConfig.find((s) => s.id === statusId);
+              return iconUrl ? (
+                <img
+                  key={statusId}
+                  src={iconUrl}
+                  alt={status.label || statusId}
+                  className="status-icon-column"
+                  title={status?.label || statusId}
+                  style={{ "--status-color": status?.color }}
+                />
+              ) : null;
+            })}
           </div>
         )}
       </div>

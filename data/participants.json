@@ -3,29 +3,32 @@
     {
       "type": "npc",
       "name": "Гигантская крыса",
-      "hp": 3,
+      "hp": 2,
       "friend": false,
       "id": 1772333404518,
       "initiative": null,
-      "inCombat": false
+      "inCombat": false,
+      "dead": true
     },
     {
       "type": "npc",
       "name": "Гигантская крыса",
-      "hp": 9,
+      "hp": 5,
       "friend": false,
       "id": 1772333442509,
       "initiative": null,
-      "inCombat": false
+      "inCombat": false,
+      "dead": true
     },
     {
       "type": "npc",
       "name": "Рой крыс",
-      "hp": 19,
+      "hp": 17,
       "friend": false,
       "id": 1772333557211,
       "initiative": null,
-      "inCombat": false
+      "inCombat": false,
+      "dead": true
     },
     {
       "type": "npc",
@@ -42,8 +45,26 @@
       "hp": 9,
       "friend": false,
       "id": 1772333900395,
-      "initiative": null,
-      "inCombat": false
+      "initiative": 5,
+      "inCombat": true,
+      "skipNextTurn": false,
+      "statuses": [
+        "poisoned",
+        "petrified",
+        "paralyzed",
+        "invisible",
+        "prone",
+        "restrained",
+        "stunned",
+        "grappled",
+        "frightened",
+        "charmed",
+        "blinded",
+        "deafened",
+        "exhaustion",
+        "incapacitated",
+        "unconscious"
+      ]
     },
     {
       "type": "npc",
@@ -52,7 +73,21 @@
       "friend": false,
       "id": 1772333942426,
       "initiative": null,
-      "inCombat": false
+      "inCombat": false,
+      "skipNextTurn": false,
+      "statuses": [
+        "restrained",
+        "poisoned",
+        "stunned",
+        "paralyzed",
+        "blessed",
+        "deafened",
+        "hasted",
+        "frightened",
+        "invisible",
+        "blinded",
+        "charmed"
+      ]
     },
     {
       "type": "npc",
@@ -60,31 +95,34 @@
       "hp": 7,
       "friend": true,
       "id": 1772334356378,
-      "initiative": null,
-      "inCombat": false
+      "initiative": 2,
+      "inCombat": true,
+      "skipNextTurn": false
     },
     {
       "type": "npc",
       "name": "Канализационный дрейк",
-      "hp": 20,
+      "hp": 2,
       "friend": false,
       "id": 1772334456414,
       "initiative": null,
-      "inCombat": false
+      "inCombat": false,
+      "dead": true
     },
     {
       "type": "player",
       "name": "Аурелия",
-      "hp": 0,
+      "hp": 20,
       "friend": true,
       "id": 1772334498925,
       "initiative": null,
-      "inCombat": false
+      "inCombat": false,
+      "dead": false
     },
     {
       "type": "player",
       "name": "Оруэл",
-      "hp": 0,
+      "hp": 16,
       "friend": true,
       "id": 1772334528718,
       "initiative": null,
@@ -93,9 +131,46 @@
     {
       "type": "npc",
       "name": "Гигантский паук",
-      "hp": 13,
+      "hp": 5,
       "friend": false,
       "id": 1772335432288,
+      "initiative": null,
+      "inCombat": false,
+      "dead": true
+    },
+    {
+      "type": "npc",
+      "name": "Головорез",
+      "hp": 36,
+      "friend": false,
+      "id": 1773043319678,
+      "initiative": null,
+      "inCombat": false
+    },
+    {
+      "type": "npc",
+      "name": "Головорез",
+      "hp": 25,
+      "friend": false,
+      "id": 1773043338804,
+      "initiative": null,
+      "inCombat": false
+    },
+    {
+      "type": "npc",
+      "name": "Разбойник",
+      "hp": 8,
+      "friend": false,
+      "id": 1773043369153,
+      "initiative": null,
+      "inCombat": false
+    },
+    {
+      "type": "npc",
+      "name": "Разбейник",
+      "hp": 14,
+      "friend": false,
+      "id": 1773043387953,
       "initiative": null,
       "inCombat": false
     }

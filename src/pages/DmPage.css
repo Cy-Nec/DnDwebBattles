@@ -125,9 +125,11 @@ h1 {
   flex-wrap: nowrap;
   gap: 1rem;
   width: 100%;
-  overflow-x: auto;
+  overflow-x: visible;
+  overflow-y: visible;
   padding: 1rem 0;
   justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .combat-row::-webkit-scrollbar {

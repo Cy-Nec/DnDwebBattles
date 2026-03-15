@@ -29,7 +29,6 @@
 
 .participant-card:hover {
   border-color: #6c63ff;
-  transform: translateY(-5px);
 }
 
 .participant-card.dead {
@@ -245,22 +244,93 @@
   min-height: 200px;
   justify-content: space-between;
   transition: all 0.3s ease;
+  overflow: visible;
+  padding-top: 24px;
 }
 
-.combat-card:hover {
-  transform: translateY(-5px);
+.combat-card-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  overflow: visible;
+}
+
+/* Отключаем клики по иконкам статусов, когда меню открыто */
+.combat-card-wrapper.status-menu-open .status-column {
+  pointer-events: none;
+}
+
+/* Отключаем отображение тултипов, когда меню открыто */
+.combat-card-wrapper.status-menu-open .status-tooltip {
+  display: none;
 }
 
 .combat-card.current-turn {
-  border-color: #ff9800;
+  border-color: #ff9800 !important;
   box-shadow:
     0 0 20px rgba(255, 152, 0, 0.5),
     inset 0 0 10px rgba(255, 152, 0, 0.1);
 }
 
+.combat-card.current-turn:hover {
+  border-color: #ff9800 !important;
+}
+
+.card-top-indicators {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+  z-index: 5;
+}
+
+.status-column {
+  display: grid;
+  grid-template-rows: repeat(5, 40px);
+  grid-auto-flow: column;
+  gap: 6px;
+  padding: 8px 0;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.status-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.status-icon-wrapper:hover {
+  z-index: 2;
+}
+
+.status-icon-column {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px;
+  object-fit: contain;
+  border: 2px solid var(--status-color, transparent);
+  transition: all 0.3s ease;
+}
+
+.status-icon-column:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px var(--status-color, transparent);
+}
+
 .turn-indicator {
   position: absolute;
-  top: -12px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(145deg, #ff9800 0%, #f57c00 100%);
@@ -269,16 +339,16 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
-  padding: 0.25rem 1rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 20px;
   white-space: nowrap;
   box-shadow: 0 4px 15px rgba(255, 152, 0, 0.5);
-  z-index: 10;
+  z-index: 1;
 }
 
 .skip-indicator {
   position: absolute;
-  top: -12px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(145deg, #9c27b0 0%, #7b1fa2 100%);
@@ -287,7 +357,7 @@
   border-radius: 20px;
   white-space: nowrap;
   box-shadow: 0 4px 15px rgba(156, 39, 176, 0.5);
-  z-index: 10;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -420,10 +490,10 @@
 
 .skip-turn-btn {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 28px;
-  height: 28px;
+  bottom: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   border: 2px solid #9c27b0;
   background: linear-gradient(145deg, #9c27b0 0%, #7b1fa2 100%);
@@ -433,14 +503,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 50;
   padding: 0;
+  flex-direction: column;
+}
+
+/* Когда меню статусов открыто, уменьшаем z-index кнопки пропуска */
+.combat-card-wrapper.status-menu-open .skip-turn-btn {
+  z-index: 1;
 }
 
 .skip-turn-btn img {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   filter: brightness(0) invert(1);
+}
+
+.skip-turn-count {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  background: #ffeb3b;
+  color: #1a1a2e;
+  font-size: 0.65rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1px solid #1a1a2e;
 }
 
 .skip-turn-btn:hover {

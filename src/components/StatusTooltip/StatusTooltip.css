@@ -1,0 +1,123 @@
+.status-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(5px, -50%);
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid var(--status-color, #6c63ff);
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 375px;
+  max-width: 600px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  z-index: 2147483646;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.status-icon-wrapper:hover .status-tooltip {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2147483647;
+  pointer-events: auto;
+}
+
+/* Позиционирование слева, если недостаточно места справа */
+.status-tooltip.position-left {
+  transform: translate(calc(-100% - 5px), -50%);
+}
+
+/* Скрываем кнопки, когда показана подсказка */
+.status-icon-wrapper:hover ~ .status-menu .status-menu-btn,
+.status-icon-wrapper:hover ~ .skip-turn-btn {
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+/* Для вложенных элементов */
+.combat-card-wrapper:has(.status-icon-wrapper:hover) .status-menu-btn,
+.combat-card-wrapper:has(.status-icon-wrapper:hover) .skip-turn-btn {
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+/* Глобально скрываем все кнопки меню и пропуска, когда любая подсказка показана */
+body:has(.status-icon-wrapper:hover) .status-menu-btn,
+body:has(.status-icon-wrapper:hover) .skip-turn-btn,
+body:has(.status-icon-wrapper:hover) .status-menu-dropdown,
+body:has(.status-icon-wrapper:hover) .combat-actions button {
+  pointer-events: none !important;
+  opacity: 0.1 !important;
+  z-index: 1 !important;
+}
+
+/* Увеличиваем z-index подсказки при наведении */
+.status-icon-wrapper:hover .status-tooltip {
+  z-index: 2147483647;
+}
+
+.status-tooltip-title {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-tooltip-description {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+.status-description-line {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.status-description-line:last-child {
+  margin-bottom: 0;
+}
+
+.status-description-line strong {
+  color: #ffeb3b;
+  font-weight: bold;
+}
+
+.status-description-line em {
+  color: #4fc3f7;
+  font-style: italic;
+}
+
+.status-tooltip-description table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.status-tooltip-description th,
+.status-tooltip-description td {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.status-tooltip-description th {
+  background: rgba(108, 99, 255, 0.3);
+  color: #ffeb3b;
+  font-weight: bold;
+}
+
+.status-tooltip-description tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.status-tooltip-description tr:hover {
+  background: rgba(108, 99, 255, 0.15);
+}

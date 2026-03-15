@@ -3,6 +3,7 @@ import "./DmPage.css";
 import CombatControls from "../components/CombatControls";
 import ParticipantCard from "../components/ParticipantCard";
 import AddParticipantModal from "../components/AddParticipantModal";
+import { useWakeLock } from "../hooks/useWakeLock";
 import {
   sortByInitiative,
   getUniqueInitiatives,
@@ -19,6 +20,9 @@ function DmPage({ onBack }) {
   const [isLoading, setIsLoading] = useState(true);
   const [round, setRound] = useState(1);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
+
+  // Блокировка отключения экрана
+  useWakeLock();
 
   // Загрузка участников и состояния боя при монтировании
   useEffect(() => {
@@ -135,11 +139,34 @@ function DmPage({ onBack }) {
     );
   };
 
-  const handleSkipTurn = (id) => {
+  const handleSkipTurn = (id, rounds = 1) => {
     setParticipants(
-      participants.map((p) =>
-        p.id === id ? { ...p, skipNextTurn: !p.skipNextTurn } : p,
-      ),
+      participants.map((p) => {
+        if (p.id !== id) return p;
+        // Если rounds === 0, отменяем пропуск
+        if (rounds === 0) {
+          return { ...p, skipNextTurn: false, skipTurnsCount: undefined };
+        }
+        // Если уже установлен пропуск, обновляем значение
+        if (p.skipNextTurn) {
+          return { ...p, skipNextTurn: true, skipTurnsCount: rounds };
+        }
+        // Иначе устанавливаем пропуск с указанным количеством ходов
+        return { ...p, skipNextTurn: true, skipTurnsCount: rounds };
+      }),
+    );
+  };
+
+  const handleToggleStatus = (id, statusId) => {
+    setParticipants(
+      participants.map((p) => {
+        if (p.id !== id) return p;
+        const currentStatuses = p.statuses || [];
+        const newStatuses = currentStatuses.includes(statusId)
+          ? currentStatuses.filter((s) => s !== statusId)
+          : [...currentStatuses, statusId];
+        return { ...p, statuses: newStatuses };
+      }),
     );
   };
 
@@ -148,13 +175,17 @@ function DmPage({ onBack }) {
   const nonCombatParticipants = participants.filter((p) => p.inCombat !== true);
   const deadParticipants = participants.filter((p) => p.dead);
 
-  const sortedCombatParticipants = sortByInitiative(combatParticipants);
-  const uniqueInitiatives = getUniqueInitiatives(sortedCombatParticipants);
-  const currentTurnParticipants = getCurrentTurnParticipants(
-    sortedCombatParticipants,
-    uniqueInitiatives,
-    currentTurnIndex,
+  // Фильтруем только участников с инициативой
+  const combatParticipantsWithInitiative = combatParticipants.filter(
+    (p) => p.initiative !== null && p.initiative !== undefined,
   );
+  const sortedCombatParticipants = sortByInitiative(
+    combatParticipantsWithInitiative,
+  );
+
+  // currentTurnIndex теперь указывает на конкретного участника в sortedCombatParticipants
+  const currentTurnParticipant =
+    sortedCombatParticipants[currentTurnIndex] || null;
 
   const startCombat = () => {
     setParticipants(
@@ -178,31 +209,48 @@ function DmPage({ onBack }) {
   };
 
   const endTurn = () => {
-    if (uniqueInitiatives.length === 0) return;
+    if (sortedCombatParticipants.length === 0) return;
 
     let nextIndex = currentTurnIndex + 1;
+    const updates = new Map();
 
-    // Автоматически пропускаем ходы участников с skipNextTurn
-    while (nextIndex < uniqueInitiatives.length) {
-      const nextInitiative = uniqueInitiatives[nextIndex];
-      const nextParticipant = sortedCombatParticipants.find(
-        (p) => p.initiative === nextInitiative,
-      );
+    // Пропускаем участников, которые пропускают ход
+    while (nextIndex < sortedCombatParticipants.length) {
+      const nextParticipant = sortedCombatParticipants[nextIndex];
 
-      if (nextParticipant && nextParticipant.skipNextTurn) {
-        // Сбрасываем флаг пропуска и продолжаем к следующему
-        setParticipants((prev) =>
-          prev.map((p) =>
-            p.id === nextParticipant.id ? { ...p, skipNextTurn: false } : p,
-          ),
-        );
-        nextIndex++;
+      if (nextParticipant.skipNextTurn) {
+        const skipTurnsCount = nextParticipant.skipTurnsCount || 1;
+        const newSkipTurnsCount = skipTurnsCount - 1;
+
+        updates.set(nextParticipant.id, {
+          skipNextTurn: newSkipTurnsCount > 0,
+          skipTurnsCount: newSkipTurnsCount > 0 ? newSkipTurnsCount : undefined,
+        });
+
+        if (newSkipTurnsCount > 0) {
+          // Ещё есть пропуски, идём дальше
+          nextIndex++;
+        } else {
+          // Счётчик исчерпан, останавливаемся на этом участнике
+          break;
+        }
       } else {
+        // Участник активен, останавливаемся
         break;
       }
     }
 
-    if (nextIndex >= uniqueInitiatives.length) {
+    // Применяем все обновления одним вызовом
+    if (updates.size > 0) {
+      setParticipants((prev) =>
+        prev.map((p) =>
+          updates.has(p.id) ? { ...p, ...updates.get(p.id) } : p,
+        ),
+      );
+    }
+
+    // Проверка на конец круга
+    if (nextIndex >= sortedCombatParticipants.length) {
       setRound(round + 1);
       setCurrentTurnIndex(0);
     } else {
@@ -257,18 +305,19 @@ function DmPage({ onBack }) {
 
       {isCombatMode && (
         <>
-          <div className="section-title">Бой</div>
+          <div className="section-title">Бой ({(round - 1) * 6} сек)</div>
           <div className="combat-row">
             {sortedCombatParticipants.map((participant) => (
               <ParticipantCard
                 key={participant.id}
                 participant={participant}
                 mode="combat-dm"
-                isCurrent={isCurrentTurn(participant, currentTurnParticipants)}
+                isCurrent={currentTurnParticipant?.id === participant.id}
                 onChangeHp={handleChangeHp}
                 onLeaveCombat={handleLeaveCombat}
                 onDeath={handleDeath}
                 onSkipTurn={handleSkipTurn}
+                onToggleStatus={handleToggleStatus}
               />
             ))}
           </div>
