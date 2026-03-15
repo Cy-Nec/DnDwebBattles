@@ -1,5 +1,5 @@
 @echo off
-echo Запуск WEBfight...
+echo Запуск webDNDBattles...
 echo.
 
 REM Проверка наличия node_modules
@@ -11,16 +11,16 @@ if not exist "node_modules" (
 
 REM Запуск API сервера в фоновом режиме
 echo [1/2] Запуск API сервера на порту 3001...
-start "WEBfight API" cmd /k "npm run server"
+start "webDNDBattles API" cmd /k "npm run server"
 timeout /t 2 /nobreak > nul
 
 REM Запуск frontend
 echo [2/2] Запуск frontend на порту 5173...
-start "WEBfight Frontend" cmd /k "npm run dev"
+start "webDNDBattles Frontend" cmd /k "npm run dev"
 
 echo.
 echo ========================================
-echo WEBfight запущен!
+echo webDNDBattles запущен!
 echo.
 echo Открой в браузере:
 echo   Локально: http://localhost:5173
