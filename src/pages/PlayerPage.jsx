@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./PlayerPage.css";
 import ParticipantCard from "../components/ParticipantCard";
 import RoundDisplay from "../components/RoundDisplay";
@@ -12,6 +12,7 @@ function PlayerPage({ onBack, playerId }) {
   const [isLoading, setIsLoading] = useState(true);
   const [round, setRound] = useState(1);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
+  const cardRefs = useRef({});
 
   // Блокировка отключения экрана
   useWakeLock();
@@ -77,6 +78,31 @@ function PlayerPage({ onBack, playerId }) {
   const currentTurnParticipant =
     sortedCombatParticipants[currentTurnIndex] || null;
 
+  // Автопрокрутка к текущему участнику при смене хода
+  const prevTurnIndexRef = useRef(currentTurnIndex);
+  useEffect(() => {
+    // Скроллим только если индекс хода изменился
+    if (prevTurnIndexRef.current !== currentTurnIndex) {
+      prevTurnIndexRef.current = currentTurnIndex;
+      
+      if (currentTurnIndex !== null && sortedCombatParticipants[currentTurnIndex]) {
+        const currentParticipant = sortedCombatParticipants[currentTurnIndex];
+        const cardElement = cardRefs.current[currentParticipant.id];
+
+        if (cardElement) {
+          // Небольшая задержка чтобы элемент точно отрендерился
+          setTimeout(() => {
+            cardElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "center"
+            });
+          }, 100);
+        }
+      }
+    }
+  }, [currentTurnIndex, sortedCombatParticipants]);
+
   if (isLoading) {
     return (
       <div className="player-page">
@@ -103,13 +129,17 @@ function PlayerPage({ onBack, playerId }) {
           <RoundDisplay round={round} />
           <div className="combat-row">
             {sortedCombatParticipants.map((participant) => (
-              <ParticipantCard
+              <div
                 key={participant.id}
-                participant={participant}
-                mode="combat-player"
-                isCurrent={currentTurnParticipant?.id === participant.id}
-                currentPlayerId={playerId}
-              />
+                ref={(el) => (cardRefs.current[participant.id] = el)}
+              >
+                <ParticipantCard
+                  participant={participant}
+                  mode="combat-player"
+                  isCurrent={currentTurnParticipant?.id === participant.id}
+                  currentPlayerId={playerId}
+                />
+              </div>
             ))}
           </div>
         </>

@@ -246,6 +246,14 @@
   transition: all 0.3s ease;
   overflow: visible;
   padding-top: 24px;
+  z-index: 1;
+  /* Разрешаем overflow для отображения tooltip */
+  overflow: visible !important;
+}
+
+/* Поднимаем карточку при наведении на статус */
+.combat-card:has(.status-icon-wrapper:hover) {
+  z-index: 999997 !important;
 }
 
 .combat-card-wrapper {
@@ -253,6 +261,19 @@
   align-items: stretch;
   gap: 8px;
   overflow: visible;
+  position: relative;
+  z-index: 1;
+  /* Добавляем position relative для позиционирования tooltip */
+}
+
+/* Поднимаем карточку при наведении на статус */
+.combat-card-wrapper:has(.status-icon-wrapper:hover) {
+  z-index: 999997 !important;
+}
+
+/* Поднимаем карточку при открытом меню статусов */
+.combat-card-wrapper.status-menu-open {
+  z-index: 1000000 !important;
 }
 
 /* Отключаем клики по иконкам статусов, когда меню открыто */
@@ -284,7 +305,7 @@
   flex-wrap: wrap;
   gap: 6px;
   align-items: flex-start;
-  z-index: 5;
+  z-index: 100;
 }
 
 .status-column {
@@ -296,8 +317,10 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
-  position: relative;
-  z-index: 1;
+  z-index: 70;
+  /* Убираем transform и position, чтобы не влиял на позиционирование tooltip */
+  transform: none !important;
+  position: static;
 }
 
 .status-icon-wrapper {
@@ -305,11 +328,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1;
+  /* Разрешаем pointer events для работы hover */
+  pointer-events: auto;
 }
 
 .status-icon-wrapper:hover {
-  z-index: 2;
+  z-index: 999997;
 }
 
 .status-icon-column {
@@ -321,6 +345,8 @@
   object-fit: contain;
   border: 2px solid var(--status-color, transparent);
   transition: all 0.3s ease;
+  /* Разрешаем pointer events для работы hover на иконке */
+  pointer-events: none;
 }
 
 .status-icon-column:hover {
@@ -380,6 +406,8 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  position: relative;
+  z-index: 50;
 }
 
 .leave-combat-btn {
@@ -559,4 +587,19 @@
   50% {
     box-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
   }
+}
+
+@keyframes statusAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.status-icon-wrapper {
+  animation: statusAppear 0.3s ease-out forwards;
 }

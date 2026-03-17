@@ -3,51 +3,74 @@ import { parseMarkdown } from "../../utils/parseMarkdown.jsx";
 import "./StatusTooltip.css";
 
 function StatusTooltip({ status }) {
-  const [position, setPosition] = useState("right");
   const tooltipRef = useRef(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+
+  const updatePosition = () => {
+    if (tooltipRef.current) {
+      const tooltip = tooltipRef.current;
+      const iconWrapper = tooltipRef.current.parentElement;
+
+      if (iconWrapper) {
+        const viewportWidth = window.innerWidth;
+
+        // Отступы от краёв экрана
+        const edgePadding = 10;
+        // Минимальный отступ от иконки
+        const iconGap = 2;
+
+        // Временно делаем видимым для расчёта размеров
+        tooltip.style.visibility = 'visible';
+        tooltip.style.opacity = '0';
+        
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+
+        // Возвращаем скрытие
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.opacity = '0';
+
+        // Позиционируем по вертикали — выравниваем по верху иконки
+        let newTop = 0;
+        
+        // Позиционируем по горизонтали — справа от иконки
+        let newLeft = iconWrapper.offsetWidth + iconGap;
+
+        // Проверяем, не выходит ли за правый край экрана
+        const iconRect = iconWrapper.getBoundingClientRect();
+        if (iconRect.right + tooltipWidth + iconGap > viewportWidth - edgePadding) {
+          // Позиционируем слева от иконки
+          newLeft = -tooltipWidth - iconGap;
+        }
+
+        setPosition({ top: newTop, left: newLeft });
+      }
+    }
+  };
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (tooltipRef.current) {
-        const tooltip = tooltipRef.current;
-        const rect = tooltip.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+    updatePosition();
+    
+    // Пересчитываем позицию при изменении размера окна и скролле
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
 
-        // Проверяем, помещается ли подсказка справа (с отступом 5px)
-        const spaceOnRight = viewportWidth - e.clientX - 5;
-        const needsLeftPosition = spaceOnRight < rect.width;
-
-        setPosition(needsLeftPosition ? "left" : "right");
-
-        // Позиционируем левый край подсказки в позицию курсора + 10px отступа
-        tooltip.style.left = `${e.clientX + 10}px`;
-
-        // Центрируем по вертикали относительно курсора
-        tooltip.style.top = `${e.clientY}px`;
-
-        // Не даём подсказке выйти за верх/низ экрана
-        if (rect.height > viewportHeight) {
-          tooltip.style.top = "0";
-          tooltip.style.maxHeight = `${viewportHeight - 20}px`;
-        } else if (e.clientY + rect.height / 2 > viewportHeight) {
-          tooltip.style.top = `${viewportHeight - rect.height - 10}px`;
-        } else if (e.clientY - rect.height / 2 < 0) {
-          tooltip.style.top = "10px";
-        }
-      }
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
     };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    return () => document.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   if (!status?.description) return null;
 
   return (
     <div
-      className={`status-tooltip ${position === "left" ? "position-left" : ""}`}
-      style={{ "--status-color": status.color }}
+      className="status-tooltip"
+      style={{ 
+        "--status-color": status.color,
+        top: `${position.top}px`,
+        left: `${position.left}px`
+      }}
       ref={tooltipRef}
     >
       <div className="status-tooltip-title">{status.label}</div>

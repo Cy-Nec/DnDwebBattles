@@ -134,11 +134,15 @@ function ParticipantCard({
         </div>
         {activeStatuses.length > 0 && (
           <div className="status-column">
-            {activeStatuses.map((statusId) => {
+            {activeStatuses.map((statusId, index) => {
               const iconUrl = getStatusIcon(statusId);
               const status = statusesConfig.find((s) => s.id === statusId);
               return iconUrl ? (
-                <div key={statusId} className="status-icon-wrapper">
+                <div
+                  key={`${participant.id}-${statusId}`}
+                  className="status-icon-wrapper"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
                   <img
                     src={iconUrl}
                     alt={status.label || statusId}
@@ -198,17 +202,20 @@ function ParticipantCard({
         </div>
         {activeStatuses.length > 0 && (
           <div className="status-column">
-            {activeStatuses.map((statusId) => {
+            {activeStatuses.map((statusId, index) => {
               const iconUrl = getStatusIcon(statusId);
               const status = statusesConfig.find((s) => s.id === statusId);
               return iconUrl ? (
                 <img
-                  key={statusId}
+                  key={`${participant.id}-${statusId}`}
                   src={iconUrl}
                   alt={status.label || statusId}
                   className="status-icon-column"
                   title={status?.label || statusId}
-                  style={{ "--status-color": status?.color }}
+                  style={{
+                    "--status-color": status?.color,
+                    animationDelay: `${index * 0.05}s`
+                  }}
                 />
               ) : null;
             })}

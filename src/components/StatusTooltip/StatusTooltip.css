@@ -1,61 +1,44 @@
 .status-tooltip {
-  position: fixed;
-  top: 0;
-  left: 0;
-  transform: translate(5px, -50%);
+  position: absolute;
   background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
   border: 2px solid var(--status-color, #6c63ff);
   border-radius: 12px;
   padding: 1rem;
   min-width: 375px;
   max-width: 600px;
+  max-height: 300px;
+  overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  z-index: 2147483646;
+  z-index: 999999;
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s ease;
   pointer-events: none;
+  /* Позиционируем относительно верхнего левого угла wrapper */
+  margin: 0;
+  /* Убираем contain, чтобы не влиял на позиционирование */
 }
 
-.status-icon-wrapper:hover .status-tooltip {
-  opacity: 1;
-  visibility: visible;
-  z-index: 2147483647;
+/* Показываем tooltip при наведении на иконку */
+.status-icon-wrapper:hover .status-tooltip,
+.status-icon-wrapper .status-tooltip:hover {
+  opacity: 1 !important;
+  visibility: visible !important;
   pointer-events: auto;
+  z-index: 1000000 !important;
 }
 
-/* Позиционирование слева, если недостаточно места справа */
-.status-tooltip.position-left {
-  transform: translate(calc(-100% - 5px), -50%);
-}
-
-/* Скрываем кнопки, когда показана подсказка */
+/* Скрываем кнопки при наведении на иконку статуса */
 .status-icon-wrapper:hover ~ .status-menu .status-menu-btn,
 .status-icon-wrapper:hover ~ .skip-turn-btn {
   pointer-events: none;
   opacity: 0.2;
 }
 
-/* Для вложенных элементов */
-.combat-card-wrapper:has(.status-icon-wrapper:hover) .status-menu-btn,
-.combat-card-wrapper:has(.status-icon-wrapper:hover) .skip-turn-btn {
-  pointer-events: none;
-  opacity: 0.2;
-}
-
-/* Глобально скрываем все кнопки меню и пропуска, когда любая подсказка показана */
-body:has(.status-icon-wrapper:hover) .status-menu-btn,
-body:has(.status-icon-wrapper:hover) .skip-turn-btn,
-body:has(.status-icon-wrapper:hover) .status-menu-dropdown,
-body:has(.status-icon-wrapper:hover) .combat-actions button {
+/* Скрываем кнопки действий при наведении на статус */
+.combat-card:has(.status-icon-wrapper:hover) .combat-actions button {
   pointer-events: none !important;
-  opacity: 0.1 !important;
-  z-index: 1 !important;
-}
-
-/* Увеличиваем z-index подсказки при наведении */
-.status-icon-wrapper:hover .status-tooltip {
-  z-index: 2147483647;
+  opacity: 0.2 !important;
 }
 
 .status-tooltip-title {

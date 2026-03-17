@@ -1,10 +1,16 @@
 .status-menu {
   position: relative;
   display: inline-block;
+  z-index: 100;
+}
+
+.status-menu.open {
+  z-index: 1000001;
 }
 
 .status-menu.open .status-menu-dropdown {
   pointer-events: auto;
+  z-index: 1000002;
 }
 
 .status-menu-btn {
@@ -20,6 +26,8 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  position: relative;
+  z-index: 1000003;
 }
 
 .status-menu-btn img {
@@ -31,6 +39,11 @@
 .status-menu-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+}
+
+/* Снижаем z-index иконок статусов при открытом меню */
+.combat-card-wrapper.status-menu-open .status-column {
+  z-index: 1 !important;
 }
 
 .status-menu-dropdown {

@@ -35,7 +35,7 @@ export const statusesConfig = [
   {
     id: "exhaustion",
     label: "Истощённый",
-    icon: "/statuses/Exhaustion.svg",
+    icon: "/statuses/exhaustion.svg",
     color: "#8d6e63",
     sound: "/statuses/sounds/exhaustion.mp3",
     description:
@@ -62,7 +62,7 @@ export const statusesConfig = [
   {
     id: "incapacitated",
     label: "Недееспособный",
-    icon: "/statuses/Incapacitated.svg",
+    icon: "/statuses/incapacitated.svg",
     color: "#546e7a",
     sound: "/statuses/sounds/incapacitated.mp3",
     description:

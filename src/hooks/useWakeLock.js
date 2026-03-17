@@ -10,31 +10,60 @@ export function useWakeLock() {
       return
     }
 
+    let isMounted = true
+
     const requestWakeLock = async () => {
       try {
         const lock = await navigator.wakeLock.request('screen')
-        setWakeLock(lock)
-        setIsLocked(true)
+        if (isMounted) {
+          setWakeLock(lock)
+          setIsLocked(true)
+        }
 
         lock.addEventListener('release', () => {
-          setIsLocked(false)
+          if (isMounted) {
+            setIsLocked(false)
+            setWakeLock(null)
+          }
         })
+        console.log('Wake Lock успешно получен')
       } catch (err) {
-        console.error('Ошибка при запросе Wake Lock:', err)
+        console.error('Ошибка при запросе Wake Lock:', err.name, err.message)
       }
     }
 
     const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible' && wakeLock === null) {
+      if (document.visibilityState === 'visible') {
+        console.log('Вкладка стала видимой, запрашиваем Wake Lock')
         await requestWakeLock()
+      } else {
+        console.log('Вкладка скрыта')
       }
     }
 
+    // Запрашиваем при первом клике/тапе (требуется жест пользователя)
+    const handleUserInteraction = async () => {
+      console.log('Пользователь взаимодействует со страницей')
+      if (!wakeLock) {
+        await requestWakeLock()
+      }
+      // Удаляем обработчики после первого взаимодействия
+      document.removeEventListener('click', handleUserInteraction)
+      document.removeEventListener('touchstart', handleUserInteraction)
+    }
+
+    document.addEventListener('click', handleUserInteraction)
+    document.addEventListener('touchstart', handleUserInteraction)
+
+    // Также пробуем запросить сразу (может сработать на localhost)
     requestWakeLock()
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
+      isMounted = false
+      document.removeEventListener('click', handleUserInteraction)
+      document.removeEventListener('touchstart', handleUserInteraction)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       wakeLock?.release()
     }
