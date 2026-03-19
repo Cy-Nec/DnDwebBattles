@@ -10,15 +10,23 @@
   background: var(--dnd-bg-card);
   color: var(--dnd-text-primary);
   padding: var(--spacing-xl) var(--spacing-md);
+  padding-top: 80px;
 }
 
 .player-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 100%;
-  margin-bottom: var(--spacing-lg);
-  position: relative;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--dnd-bg-card);
+  border-bottom: 2px solid var(--dnd-border-primary);
+  z-index: var(--z-sticky);
+  box-sizing: border-box;
 }
 
 .back-button {
@@ -34,14 +42,13 @@
   cursor: pointer;
   transition: var(--dnd-transition);
   white-space: nowrap;
-  position: absolute;
-  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .back-button:hover {
@@ -54,12 +61,17 @@
   filter: brightness(0) invert(1);
 }
 
-h1 {
+.player-header h1 {
   margin: 0;
   font-size: var(--font-size-xxxl);
   text-transform: uppercase;
   letter-spacing: 3px;
   text-align: center;
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0 var(--spacing-md);
 }
 
 .loading,

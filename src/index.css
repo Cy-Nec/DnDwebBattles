@@ -34,14 +34,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c9a227;
+  background: var(--dnd-accent-primary);
   border-radius: 4px;
   border: 2px solid rgba(245, 230, 211, 0.05);
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #dcc056;
+  background: var(--dnd-accent-hover);
 }
 
 ::-webkit-scrollbar-corner {

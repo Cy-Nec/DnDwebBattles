@@ -10,15 +10,23 @@
   background: var(--dnd-bg-card);
   color: var(--dnd-text-primary);
   padding: var(--spacing-xl) var(--spacing-md);
+  padding-top: 80px;
 }
 
 .dm-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 100%;
-  margin-bottom: var(--spacing-lg);
-  position: relative;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--dnd-bg-card);
+  border-bottom: 2px solid var(--dnd-border-primary);
+  z-index: var(--z-sticky);
+  box-sizing: border-box;
 }
 
 .back-button {
@@ -34,14 +42,13 @@
   cursor: pointer;
   transition: var(--dnd-transition);
   white-space: nowrap;
-  position: absolute;
-  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .back-button:hover {
@@ -55,8 +62,6 @@
 }
 
 .menu-button {
-  position: absolute;
-  right: 0;
   width: 44px;
   height: 44px;
   border-radius: var(--border-radius-lg);
@@ -69,6 +74,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .menu-button:hover {
@@ -81,12 +87,17 @@
   filter: brightness(0) invert(1);
 }
 
-h1 {
+.dm-header h1 {
   margin: 0;
   font-size: var(--font-size-xxxl);
   text-transform: uppercase;
   letter-spacing: 3px;
   text-align: center;
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0 var(--spacing-md);
 }
 
 .add-button {
@@ -109,22 +120,42 @@ h1 {
 }
 
 .start-combat-button {
-  padding: var(--spacing-lg) calc(var(--spacing-xl) - var(--spacing-sm));
-  font-size: var(--font-size-lg);
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  position: fixed;
+  bottom: var(--spacing-lg);
+  left: var(--spacing-lg);
+  width: 64px;
+  height: 64px;
+  border-radius: var(--border-radius-round);
+  border: 2px solid var(--dnd-success);
   background: linear-gradient(145deg, var(--dnd-success) 0%, var(--dnd-success-hover) 100%);
   color: var(--dnd-text-primary);
-  border: 2px solid #6fa34a;
-  border-radius: var(--border-radius-lg);
   cursor: pointer;
   transition: var(--dnd-transition);
-  margin-top: var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: var(--z-sticky);
+  box-shadow: 0 4px 15px rgba(93, 138, 62, 0.4);
 }
 
-.start-combat-button:hover {
-  border-color: #81c784;
+.start-combat-button:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(93, 138, 62, 0.6);
+}
+
+.start-combat-button:disabled {
+  background: linear-gradient(145deg, var(--dnd-border-secondary) 0%, var(--dnd-bg-tertiary) 100%);
+  border-color: var(--dnd-border-primary);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.swords-icon {
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);
 }
 
 .section-title {

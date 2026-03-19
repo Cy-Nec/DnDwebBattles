@@ -69,7 +69,7 @@
 }
 
 .status-description-line em {
-  color: #4fc3f7;
+  color: var(--dnd-info);
   font-style: italic;
 }
 

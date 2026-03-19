@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import "./DmPage.css";
 import "../themes.css";
-import menuIcon from "../../public/menu.svg";
-import arrowBackIcon from "../../public/arrow_back.svg";
+import menuIcon from "/menu.svg?url"
+import arrowBackIcon from "/arrow_back.svg?url"
+import swordsIcon from "/swords.svg?url"
 import CombatControls from "../components/CombatControls";
 import ParticipantCard from "../components/ParticipantCard";
 import AddParticipantModal from "../components/AddParticipantModal";
@@ -177,7 +178,7 @@ function DmPage({ onBack }) {
 
   const hasInitiative = participants.some((p) => p.initiative !== null);
   const combatParticipants = participants.filter((p) => p.inCombat === true);
-  const nonCombatParticipants = participants.filter((p) => p.inCombat !== true);
+  const nonCombatParticipants = participants.filter((p) => p.inCombat !== true && !p.dead);
   const deadParticipants = participants.filter((p) => p.dead);
 
   // Фильтруем только участников с инициативой
@@ -343,8 +344,13 @@ function DmPage({ onBack }) {
           </div>
 
           {hasInitiative && (
-            <button className="start-combat-button" onClick={startCombat}>
-              ⚔️ Начать бой
+            <button className="start-combat-button" onClick={startCombat} title="Начать бой">
+              <img src={swordsIcon} alt="Начать бой" className="swords-icon" />
+            </button>
+          )}
+          {!hasInitiative && (
+            <button className="start-combat-button disabled" disabled title="Добавьте инициативу участникам">
+              <img src={swordsIcon} alt="Начать бой" className="swords-icon" />
             </button>
           )}
         </>

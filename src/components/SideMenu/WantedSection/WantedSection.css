@@ -108,17 +108,17 @@
 
 .wanted-card-type.type-player {
   background: rgba(93, 138, 62, 0.3);
-  color: #5d8a3e;
+  color: var(--dnd-status-positive);
 }
 
 .wanted-card-type.type-friend {
   background: rgba(74, 124, 156, 0.3);
-  color: #4a7c9c;
+  color: var(--dnd-info);
 }
 
 .wanted-card-type.type-enemy {
   background: rgba(168, 63, 50, 0.3);
-  color: #a83f32;
+  color: var(--dnd-status-negative);
 }
 
 /* Кнопка добавления */
@@ -305,18 +305,19 @@
 
 /* Контекстное меню */
 .wanted-context-menu {
-  position: fixed;
+  position: absolute;
   background: var(--dnd-bg-card);
   border: 2px solid var(--dnd-accent-primary);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-xs);
-  min-width: 150px;
+  min-width: 170px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-  z-index: var(--z-tooltip);
+  z-index: 999999;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   animation: contextMenuAppear 0.15s ease;
+  pointer-events: auto;
 }
 
 @keyframes contextMenuAppear {

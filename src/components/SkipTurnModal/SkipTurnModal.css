@@ -114,9 +114,9 @@
 .confirm-btn {
   background: var(--dnd-skip-indicator);
   color: var(--dnd-text-primary);
-  border: 2px solid #ba68c8;
+  border: 2px solid var(--dnd-status-magic);
 }
 
 .confirm-btn:hover {
-  border-color: #ba68c8;
+  border-color: var(--dnd-status-magic);
 }

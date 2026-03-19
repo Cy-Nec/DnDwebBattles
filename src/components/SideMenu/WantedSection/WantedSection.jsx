@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './WantedSection.css'
-import addIcon from '../../../../public/add.svg'
+import addIcon from "/add.svg?url"
 
 function WantedSection({ participants = [], onAddParticipant, onRemoveParticipant, onEditParticipant, onJoinCombat, onReviveParticipant }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -15,14 +15,31 @@ function WantedSection({ participants = [], onAddParticipant, onRemoveParticipan
   const [editHp, setEditHp] = useState('')
   const [editType, setEditType] = useState('player')
   const [editInitiative, setEditInitiative] = useState('')
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
 
   const handleAdd = () => {
     if (newName.trim()) {
-      onAddParticipant({
+      const participantData = {
         name: newName.trim(),
         hp: parseInt(newHp) || 10,
-        type: newType
-      })
+      }
+
+      console.log('handleAdd вызван, newType:', newType)
+
+      // Для NPC устанавливаем дополнительный флаг friend
+      if (newType === 'player') {
+        participantData.type = 'player'
+      } else if (newType === 'friend') {
+        participantData.type = 'npc'
+        participantData.friend = true
+      } else if (newType === 'enemy') {
+        participantData.type = 'npc'
+        participantData.friend = false
+      }
+
+      console.log('Добавляем участника:', participantData)
+
+      onAddParticipant(participantData)
       setNewName('')
       setNewHp('')
       setIsAddModalOpen(false)
@@ -93,19 +110,46 @@ function WantedSection({ participants = [], onAddParticipant, onRemoveParticipan
     e.preventDefault()
     e.stopPropagation()
     setSelectedParticipant(participant)
+
+    // Получаем позицию относительно .wanted-section
+    const section = e.currentTarget.closest('.wanted-section')
+    const sectionRect = section.getBoundingClientRect()
+    const sectionWidth = sectionRect.width
     
-    // Вычисляем позицию с учётом границ экрана
-    const menuWidth = 150
-    const menuHeight = 120
-    const x = e.clientX + menuWidth > window.innerWidth 
-      ? e.clientX - menuWidth - 10
-      : e.clientX + 10
-    const y = e.clientY + menuHeight > window.innerHeight
-      ? e.clientY - menuHeight - 10
-      : e.clientY + 10
+    const menuWidth = 180
+    const offsetX = 10
+    const offsetY = 10
+    
+    // Позиция курсора относительно секции
+    const cursorX = e.clientX - sectionRect.left
+    
+    // Проверяем, помещается ли меню слева от курсора
+    const x = cursorX - menuWidth - offsetX < 0
+      ? cursorX + offsetX  // Если не помещается слева, открываем справа
+      : cursorX - menuWidth - offsetX  // Иначе слева
+    const y = e.clientY - sectionRect.top + offsetY
+
+    console.log('Позиция:', { x, y, cursorX, sectionWidth, menuWidth })
     
     setContextMenu({ x, y })
   }
+
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      // Не закрываем при клике на само меню
+      if (e.target.closest('.wanted-context-menu')) return
+      closeContextMenu()
+    }
+
+    // Используем setTimeout чтобы не срабатывало сразу при открытии
+    setTimeout(() => {
+      document.addEventListener('click', handleGlobalClick, { capture: true })
+    }, 100)
+
+    return () => {
+      document.removeEventListener('click', handleGlobalClick, { capture: true })
+    }
+  }, [])
 
   const closeContextMenu = () => {
     setContextMenu(null)
@@ -121,14 +165,26 @@ function WantedSection({ participants = [], onAddParticipant, onRemoveParticipan
 
   return (
     <div className="wanted-section">
-      <div className="wanted-content" onClick={closeContextMenu}>
+      <div className="wanted-content">
         {participants.length === 0 ? (
           <p className="wanted-placeholder">Нет участников</p>
         ) : (
           <div className="wanted-cards">
-            {participants.map((participant, index) => (
-              <div 
-                key={participant.id || index} 
+            {participants
+              .slice()
+              .sort((a, b) => {
+                // Сначала игроки, потом остальные
+                if (a.type === 'player' && b.type !== 'player') return -1
+                if (a.type !== 'player' && b.type === 'player') return 1
+                // Затем по статусу (живые перед мёртвыми)
+                if (a.dead && !b.dead) return 1
+                if (!a.dead && b.dead) return -1
+                // Затем по алфавиту
+                return a.name.localeCompare(b.name)
+              })
+              .map((participant, index) => (
+              <div
+                key={participant.id || index}
                 className={`wanted-card ${participant.dead ? 'dead' : ''}`}
                 onContextMenu={(e) => handleContextMenu(e, participant)}
               >
@@ -136,9 +192,9 @@ function WantedSection({ participants = [], onAddParticipant, onRemoveParticipan
                 <div className="wanted-card-hp">
                   HP: {participant.hp}
                 </div>
-                <div className={`wanted-card-type type-${participant.type}`}>
-                  {participant.type === 'player' ? 'Игрок' : 
-                   participant.type === 'friend' ? 'Союзник' : 'Враг'}
+                <div className={`wanted-card-type type-${participant.type === 'player' ? 'player' : participant.friend ? 'friend' : 'enemy'}`}>
+                  {participant.type === 'player' ? 'Игрок' :
+                   participant.friend ? 'Союзник' : 'Враг'}
                 </div>
                 {participant.dead && <div className="wanted-card-dead">Мёртв</div>}
               </div>
@@ -157,10 +213,12 @@ function WantedSection({ participants = [], onAddParticipant, onRemoveParticipan
 
       {/* Контекстное меню */}
       {contextMenu && selectedParticipant && (
-        <div 
+        <div
           className="wanted-context-menu"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-          onClick={(e) => e.stopPropagation()}
+          style={{ 
+            top: contextMenu.y, 
+            left: contextMenu.x,
+          }}
         >
           <button className="context-menu-item" onClick={() => openEditModal(selectedParticipant)}>
             Изменить

@@ -1,18 +1,46 @@
 import { useState } from 'react'
 import './SideMenu.css'
-import closeIcon from '../../../public/close.svg'
-import arrowDropIcon from '../../../public/arrow_drop.svg'
+import closeIcon from "/close.svg?url"
+import arrowDropIcon from "/arrow_drop.svg?url"
 import WantedSection from './WantedSection/WantedSection'
 
 function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipants, onAddWantedParticipant, onRemoveWantedParticipant, onEditWantedParticipant, onJoinCombat, onReviveWantedParticipant }) {
   const [wantedOpen, setWantedOpen] = useState(false)
   const [imgOpen, setImgOpen] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
+  const [collapsingSections, setCollapsingSections] = useState({})
+
+  const handleClose = () => {
+    setIsClosing(true)
+    setTimeout(() => {
+      onClose()
+      setIsClosing(false)
+    }, 300)
+  }
+
+  const toggleSection = (section, isOpen) => {
+    if (isOpen) {
+      // Закрываем с анимацией
+      setCollapsingSections(prev => ({ ...prev, [section]: 'collapsing' }))
+      setTimeout(() => {
+        setCollapsingSections(prev => ({ ...prev, [section]: false }))
+        section === 'wanted' ? setWantedOpen(false) : setImgOpen(false)
+      }, 300)
+    } else {
+      // Открываем с анимацией
+      section === 'wanted' ? setWantedOpen(true) : setImgOpen(true)
+      setCollapsingSections(prev => ({ ...prev, [section]: 'expanding' }))
+      setTimeout(() => {
+        setCollapsingSections(prev => ({ ...prev, [section]: false }))
+      }, 300)
+    }
+  }
 
   if (!isOpen) return null
 
   return (
-    <div className="side-menu-backdrop" onClick={onClose}>
-      <div className="side-menu" onClick={(e) => e.stopPropagation()}>
+    <div className={`side-menu-backdrop ${isClosing ? 'closing' : ''}`} onClick={handleClose}>
+      <div className={`side-menu ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="side-menu-header">
           <h2>Меню</h2>
           <button className="close-menu-btn" onClick={onClose}>
@@ -27,7 +55,7 @@ function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipan
               <span>WANTED</span>
               <button
                 className="side-menu-section-toggle"
-                onClick={() => setWantedOpen(!wantedOpen)}
+                onClick={() => toggleSection('wanted', wantedOpen)}
               >
                 <img
                   src={arrowDropIcon}
@@ -37,7 +65,7 @@ function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipan
               </button>
             </div>
             {wantedOpen && (
-              <div className="side-menu-section-content">
+              <div className={`side-menu-section-content ${collapsingSections.wanted || ''}`}>
                 <WantedSection
                   participants={wantedParticipants}
                   onAddParticipant={onAddWantedParticipant}
@@ -56,7 +84,7 @@ function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipan
               <span>IMG</span>
               <button
                 className="side-menu-section-toggle"
-                onClick={() => setImgOpen(!imgOpen)}
+                onClick={() => toggleSection('img', imgOpen)}
               >
                 <img
                   src={arrowDropIcon}
@@ -66,7 +94,7 @@ function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipan
               </button>
             </div>
             {imgOpen && (
-              <div className="side-menu-section-content">
+              <div className={`side-menu-section-content ${collapsingSections.img || ''}`}>
                 <p className="side-menu-section-placeholder">Изображения...</p>
               </div>
             )}

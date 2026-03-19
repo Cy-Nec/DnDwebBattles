@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./PlayerPage.css";
 import "../themes.css";
-import arrowBackIcon from "../../public/arrow_back.svg";
+import arrowBackIcon from "/arrow_back.svg?url";
 import ParticipantCard from "../components/ParticipantCard";
 import RoundDisplay from "../components/RoundDisplay";
 import { useWakeLock } from "../hooks/useWakeLock";

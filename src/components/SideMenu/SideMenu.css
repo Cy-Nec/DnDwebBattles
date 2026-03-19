@@ -11,7 +11,7 @@
   z-index: var(--z-modal-backdrop);
   display: flex;
   justify-content: flex-end;
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.2s ease forwards;
 }
 
 @keyframes fadeIn {
@@ -23,15 +23,32 @@
   }
 }
 
+.side-menu-backdrop.closing {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 .side-menu {
   width: 400px;
   max-width: 90vw;
   height: 100%;
   background: var(--dnd-bg-card);
   border-left: 2px solid var(--dnd-accent-primary);
-  animation: slideInRight 0.3s ease;
+  animation: slideInRight 0.3s ease forwards;
   display: flex;
   flex-direction: column;
+}
+
+.side-menu.closing {
+  animation: slideOutRight 0.3s ease forwards;
 }
 
 @keyframes slideInRight {
@@ -40,6 +57,15 @@
   }
   to {
     transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
   }
 }
 
@@ -213,6 +239,45 @@
   background: rgba(0, 0, 0, 0.2);
   max-height: 40vh;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.side-menu-section-content.collapsing {
+  animation: collapseSection 0.3s ease forwards;
+}
+
+.side-menu-section-content.expanding {
+  animation: expandSection 0.3s ease forwards;
+}
+
+@keyframes expandSection {
+  from {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    max-height: 40vh;
+    opacity: 1;
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+  }
+}
+
+@keyframes collapseSection {
+  from {
+    max-height: 40vh;
+    opacity: 1;
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 .side-menu-section-placeholder {
