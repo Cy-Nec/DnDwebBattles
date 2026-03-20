@@ -242,6 +242,10 @@
   overflow-x: hidden;
 }
 
+.side-menu-section-content.context-menu-open {
+  overflow: visible;
+}
+
 .side-menu-section-content.collapsing {
   animation: collapseSection 0.3s ease forwards;
 }

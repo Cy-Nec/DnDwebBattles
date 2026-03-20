@@ -3,8 +3,9 @@ import './SideMenu.css'
 import closeIcon from "/close.svg?url"
 import arrowDropIcon from "/arrow_drop.svg?url"
 import WantedSection from './WantedSection/WantedSection'
+import ImageSection from './ImageSection/ImageSection'
 
-function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipants, onAddWantedParticipant, onRemoveWantedParticipant, onEditWantedParticipant, onJoinCombat, onReviveWantedParticipant }) {
+function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipants, onAddWantedParticipant, onRemoveWantedParticipant, onEditWantedParticipant, onJoinCombat, onReviveWantedParticipant, images, onAddImage, onRemoveImage, onShowImage }) {
   const [wantedOpen, setWantedOpen] = useState(false)
   const [imgOpen, setImgOpen] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
@@ -95,7 +96,12 @@ function SideMenu({ isOpen, onClose, onEndCombat, isCombatMode, wantedParticipan
             </div>
             {imgOpen && (
               <div className={`side-menu-section-content ${collapsingSections.img || ''}`}>
-                <p className="side-menu-section-placeholder">Изображения...</p>
+                <ImageSection
+                  images={images || []}
+                  onAddImage={onAddImage}
+                  onRemoveImage={onRemoveImage}
+                  onShowImage={onShowImage}
+                />
               </div>
             )}
           </div>

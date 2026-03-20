@@ -86,12 +86,42 @@
 
 .combat-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: var(--spacing-md);
   width: 100%;
-  max-width: 1200px;
-  justify-content: center;
+  max-width: 100%;
+  justify-content: flex-start;
   align-items: flex-start;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: calc(var(--spacing-xl) + 20px) var(--spacing-md) var(--spacing-md);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dnd-accent-primary) var(--dnd-bg-secondary);
+  margin-top: -20px;
+  position: relative;
+  z-index: 10;
+  scroll-padding-left: calc(50vw - 80px);
+  scroll-padding-right: calc(50vw - 80px);
+}
+
+.combat-row::-webkit-scrollbar {
+  height: 8px;
+}
+
+.combat-row::-webkit-scrollbar-track {
+  background: var(--dnd-bg-secondary);
+  border-radius: 4px;
+}
+
+.combat-row::-webkit-scrollbar-thumb {
+  background: var(--dnd-accent-primary);
+  border-radius: 4px;
+}
+
+.combat-row::-webkit-scrollbar-thumb:hover {
+  background: var(--dnd-accent-hover);
 }
 
 @media (max-width: 600px) {
@@ -111,6 +141,183 @@
   }
 
   .combat-row {
-    max-width: 100%;
+    padding: calc(var(--spacing-xl) + 10px) var(--spacing-sm) var(--spacing-sm);
+    scroll-padding-left: calc(50vw - 70px);
+    scroll-padding-right: calc(50vw - 70px);
   }
+}
+
+/* Picture mode toggle button */
+.picture-mode-toggle {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--border-radius-round);
+  border: 2px solid var(--dnd-border-primary);
+  background: var(--dnd-bg-card);
+  color: var(--dnd-text-primary);
+  cursor: pointer;
+  transition: var(--dnd-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: var(--z-sticky);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.picture-mode-toggle:hover {
+  border-color: var(--dnd-accent-primary);
+  transform: scale(1.1);
+}
+
+.picture-mode-toggle.active {
+  border-color: var(--dnd-success);
+  background: var(--dnd-success);
+}
+
+.picture-mode-toggle svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* Picture mode styles */
+.player-page.picture-mode .player-header {
+  display: none;
+}
+
+.player-page.picture-mode {
+  padding-top: 0;
+}
+
+.player-page.picture-mode .round-display {
+  position: fixed;
+  top: var(--spacing-md);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-sticky);
+}
+
+/* Picture mode с отображаемым изображением */
+.player-page.picture-mode .combat-row {
+  position: fixed !important;
+  width: 85%;
+  top: 25px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 17% !important;
+  z-index: 100 !important;
+  padding: 0 var(--spacing-md) !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+}
+
+.player-page.picture-mode .combat-row .combat-card-container {
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  visibility: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.player-page.picture-mode .combat-row .participant-card .status-column,
+.player-page.picture-mode .combat-row .participant-card .initiative-badge {
+  display: none !important;
+}
+
+.player-page.picture-mode .combat-row .combat-card-wrapper {
+  padding-top: 15px;
+  width: 110px;
+}
+
+.player-page.picture-mode .combat-row .status-column {
+  display: none !important;
+}
+
+.player-page.picture-mode .combat-row .participant-card {
+  transform: scale(0.7) !important;
+  transform-origin: top center !important;
+  min-height: 120px !important;
+  margin: 0 !important;
+  padding: 4px 2px !important;
+}
+
+.player-page.picture-mode .combat-row .participant-card .participant-name {
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+
+.player-page.picture-mode .round-display {
+  position: fixed !important;
+  top: var(--spacing-sm) !important;
+  right: var(--spacing-lg) !important;
+  left: auto !important;
+  transform: none !important;
+  z-index: 101 !important;
+  padding: var(--spacing-xs) var(--spacing-md) !important;
+}
+
+.player-page.picture-mode .round-display span:first-child {
+  font-size: var(--font-size-xs) !important;
+}
+
+.player-page.picture-mode .round-display .round-number {
+  font-size: var(--font-size-lg) !important;
+}
+
+.player-page.picture-mode {
+  padding-top: 150px !important;
+}
+
+.displayed-image-container {
+  position: fixed;
+  top: 17%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+}
+
+.displayed-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.close-image-btn {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--border-radius-round);
+  border: 2px solid var(--dnd-danger);
+  background: rgba(168, 63, 50, 0.9);
+  color: var(--dnd-text-primary);
+  cursor: pointer;
+  transition: var(--dnd-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 102;
+}
+
+.close-image-btn:hover {
+  transform: scale(1.1);
+  background: var(--dnd-danger);
+}
+
+.close-image-btn img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1);
 }

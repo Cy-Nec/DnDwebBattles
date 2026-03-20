@@ -26,26 +26,28 @@ function DmPage({ onBack }) {
   const [round, setRound] = useState(1);
   const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [images, setImages] = useState([]);
 
   // Блокировка отключения экрана
   useWakeLock();
 
   // Загрузка участников и состояния боя при монтировании
   useEffect(() => {
-    fetch(API_URL)
-      .then((res) => res.json())
-      .then((data) => {
-        setParticipants(data.participants || []);
-        if (data.combatState) {
-          setRound(data.combatState.round || 1);
-          setCurrentTurnIndex(data.combatState.currentTurnIndex || 0);
-        }
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Ошибка загрузки участников:", err);
-        setIsLoading(false);
-      });
+    Promise.all([
+      fetch(API_URL).then(res => res.json()),
+      fetch('/api/images').then(res => res.json())
+    ]).then(([participantsData, imagesData]) => {
+      setParticipants(participantsData.participants || []);
+      setImages(imagesData.images || []);
+      if (participantsData.combatState) {
+        setRound(participantsData.combatState.round || 1);
+        setCurrentTurnIndex(participantsData.combatState.currentTurnIndex || 0);
+      }
+      setIsLoading(false);
+    }).catch((err) => {
+      console.error("Ошибка загрузки данных:", err);
+      setIsLoading(false);
+    });
   }, []);
 
   // Сохранение участников при изменении
@@ -174,6 +176,43 @@ function DmPage({ onBack }) {
         return { ...p, statuses: newStatuses };
       }),
     );
+  };
+
+  const handleAddImage = (imageData) => {
+    setImages([...images, imageData]);
+  };
+
+  const handleRemoveImage = async (id) => {
+    try {
+      const response = await fetch(`/api/images/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        setImages(images.filter((img) => img.id !== id));
+      }
+    } catch (error) {
+      console.error('Ошибка удаления изображения:', error);
+    }
+  };
+
+  const handleShowImage = async (image) => {
+    // Отправляем изображение на сервер для отображения на странице игрока
+    try {
+      const response = await fetch('/api/displayed-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(image)
+      });
+      
+      if (response.ok) {
+        console.log('Изображение отправлено на сервер:', image.name);
+      }
+    } catch (e) {
+      console.error('Ошибка отправки изображения:', e);
+    }
   };
 
   const hasInitiative = participants.some((p) => p.initiative !== null);
@@ -317,6 +356,10 @@ function DmPage({ onBack }) {
             p.id === id ? { ...p, dead: false } : p
           ))
         }}
+        images={images}
+        onAddImage={handleAddImage}
+        onRemoveImage={handleRemoveImage}
+        onShowImage={handleShowImage}
       />
 
       {isCombatMode && (

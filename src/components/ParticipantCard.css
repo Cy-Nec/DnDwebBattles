@@ -248,6 +248,10 @@
   overflow: visible !important;
 }
 
+.combat-card.current-turn {
+  z-index: 10;
+}
+
 .combat-card:has(.status-icon-wrapper:hover) {
   z-index: 999997 !important;
 }
@@ -279,6 +283,8 @@
 
 .combat-card.current-turn {
   border-color: var(--dnd-warning) !important;
+  transform: scale(1.1);
+  z-index: 100 !important;
 }
 
 .combat-card.current-turn:hover {

@@ -46,18 +46,26 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(express.static("public"));
 
 const DATA_DIR = join(__dirname, "data");
 const DATA_FILE = join(DATA_DIR, "participants.json");
+const IMAGES_DIR = join(DATA_DIR, "images");
+const IMAGES_FILE = join(DATA_DIR, "images.json");
+const DISPLAYED_IMAGE_FILE = join(DATA_DIR, "displayed-image.json");
 
 // Убедиться, что директория существует
 if (!existsSync(DATA_DIR)) {
   mkdirSync(DATA_DIR, { recursive: true });
 }
 
-// Убедиться, что файл существует
+// Убедиться, что директория для изображений существует
+if (!existsSync(IMAGES_DIR)) {
+  mkdirSync(IMAGES_DIR, { recursive: true });
+}
+
+// Убедиться, что файл участников существует
 if (!existsSync(DATA_FILE)) {
   writeFileSync(
     DATA_FILE,
@@ -67,6 +75,16 @@ if (!existsSync(DATA_FILE)) {
       2,
     ),
   );
+}
+
+// Убедиться, что файл изображений существует
+if (!existsSync(IMAGES_FILE)) {
+  writeFileSync(IMAGES_FILE, JSON.stringify({ images: [] }, null, 2));
+}
+
+// Убедиться, что файл отображаемого изображения существует
+if (!existsSync(DISPLAYED_IMAGE_FILE)) {
+  writeFileSync(DISPLAYED_IMAGE_FILE, JSON.stringify({ image: null }, null, 2));
 }
 
 // Получить участников
@@ -120,6 +138,100 @@ app.put("/api/combat-state", (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error("Ошибка обновления состояния боя:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Получить изображения
+app.get("/api/images", (req, res) => {
+  try {
+    const data = readFileSync(IMAGES_FILE, "utf-8");
+    const jsonData = JSON.parse(data);
+    res.json(jsonData);
+  } catch (err) {
+    console.error("Ошибка чтения изображений:", err);
+    res.json({ images: [] });
+  }
+});
+
+// Сохранить изображение
+app.post("/api/images", (req, res) => {
+  try {
+    const { id, name, url } = req.body;
+    console.log("POST /api/images - получено:", { id, name, urlLength: url?.length });
+    
+    if (!id || !name || !url) {
+      return res.status(400).json({ error: "Неверные данные" });
+    }
+
+    const data = readFileSync(IMAGES_FILE, "utf-8");
+    const jsonData = JSON.parse(data);
+    
+    // Сохраняем изображение в массив
+    jsonData.images.push({ id, name, url, createdAt: Date.now() });
+    
+    writeFileSync(IMAGES_FILE, JSON.stringify(jsonData, null, 2), "utf-8");
+    console.log("Изображение сохранено, всего изображений:", jsonData.images.length);
+    res.json({ success: true, image: { id, name, url } });
+  } catch (err) {
+    console.error("Ошибка сохранения изображения:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Удалить изображение
+app.delete("/api/images/:id", (req, res) => {
+  try {
+    const imageId = parseInt(req.params.id);
+    
+    const data = readFileSync(IMAGES_FILE, "utf-8");
+    const jsonData = JSON.parse(data);
+    
+    jsonData.images = jsonData.images.filter(img => img.id !== imageId);
+    
+    writeFileSync(IMAGES_FILE, JSON.stringify(jsonData, null, 2), "utf-8");
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Ошибка удаления изображения:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Получить отображаемое изображение
+app.get("/api/displayed-image", (req, res) => {
+  try {
+    const data = readFileSync(DISPLAYED_IMAGE_FILE, "utf-8");
+    const jsonData = JSON.parse(data);
+    res.json(jsonData);
+  } catch (err) {
+    console.error("Ошибка чтения отображаемого изображения:", err);
+    res.json({ image: null });
+  }
+});
+
+// Установить отображаемое изображение
+app.post("/api/displayed-image", (req, res) => {
+  try {
+    const image = req.body;
+    console.log("POST /api/displayed-image - получено:", { name: image?.name, urlLength: image?.url?.length });
+    
+    writeFileSync(DISPLAYED_IMAGE_FILE, JSON.stringify({ image }, null, 2), "utf-8");
+    console.log("Отображаемое изображение сохранено");
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Ошибка сохранения отображаемого изображения:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Очистить отображаемое изображение
+app.delete("/api/displayed-image", (req, res) => {
+  try {
+    writeFileSync(DISPLAYED_IMAGE_FILE, JSON.stringify({ image: null }, null, 2), "utf-8");
+    console.log("Отображаемое изображение очищено");
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Ошибка очистки отображаемого изображения:", err);
     res.status(500).json({ error: err.message });
   }
 });
