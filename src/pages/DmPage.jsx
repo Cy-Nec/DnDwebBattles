@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import "./DmPage.css";
 import "../themes.css";
-import menuIcon from "/menu.svg?url"
-import arrowBackIcon from "/arrow_back.svg?url"
-import swordsIcon from "/swords.svg?url"
+import menuIcon from "/menu.svg?url";
+import arrowBackIcon from "/arrow_back.svg?url";
+import swordsIcon from "/swords.svg?url";
 import CombatControls from "../components/CombatControls";
 import ParticipantCard from "../components/ParticipantCard";
 import AddParticipantModal from "../components/AddParticipantModal";
@@ -34,20 +34,24 @@ function DmPage({ onBack }) {
   // Загрузка участников и состояния боя при монтировании
   useEffect(() => {
     Promise.all([
-      fetch(API_URL).then(res => res.json()),
-      fetch('/api/images').then(res => res.json())
-    ]).then(([participantsData, imagesData]) => {
-      setParticipants(participantsData.participants || []);
-      setImages(imagesData.images || []);
-      if (participantsData.combatState) {
-        setRound(participantsData.combatState.round || 1);
-        setCurrentTurnIndex(participantsData.combatState.currentTurnIndex || 0);
-      }
-      setIsLoading(false);
-    }).catch((err) => {
-      console.error("Ошибка загрузки данных:", err);
-      setIsLoading(false);
-    });
+      fetch(API_URL).then((res) => res.json()),
+      fetch("/api/images").then((res) => res.json()),
+    ])
+      .then(([participantsData, imagesData]) => {
+        setParticipants(participantsData.participants || []);
+        setImages(imagesData.images || []);
+        if (participantsData.combatState) {
+          setRound(participantsData.combatState.round || 1);
+          setCurrentTurnIndex(
+            participantsData.combatState.currentTurnIndex || 0,
+          );
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Ошибка загрузки данных:", err);
+        setIsLoading(false);
+      });
   }, []);
 
   // Сохранение участников при изменении
@@ -135,9 +139,17 @@ function DmPage({ onBack }) {
     );
   };
 
-  const handleJoinCombat = (id) => {
+  const handleJoinCombat = (id, initiative) => {
     setParticipants(
-      participants.map((p) => (p.id === id ? { ...p, inCombat: true } : p)),
+      participants.map((p) => {
+        if (p.id !== id) return p;
+        // Если инициатива === null, сбрасываем её
+        if (initiative === null) {
+          return { ...p, inCombat: false, initiative: null };
+        }
+        // Иначе добавляем в бой с указанной инициативой
+        return { ...p, inCombat: true, initiative };
+      }),
     );
   };
 
@@ -185,39 +197,41 @@ function DmPage({ onBack }) {
   const handleRemoveImage = async (id) => {
     try {
       const response = await fetch(`/api/images/${id}`, {
-        method: 'DELETE'
+        method: "DELETE",
       });
-      
+
       if (response.ok) {
         setImages(images.filter((img) => img.id !== id));
       }
     } catch (error) {
-      console.error('Ошибка удаления изображения:', error);
+      console.error("Ошибка удаления изображения:", error);
     }
   };
 
   const handleShowImage = async (image) => {
     // Отправляем изображение на сервер для отображения на странице игрока
     try {
-      const response = await fetch('/api/displayed-image', {
-        method: 'POST',
+      const response = await fetch("/api/displayed-image", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(image)
+        body: JSON.stringify(image),
       });
-      
+
       if (response.ok) {
-        console.log('Изображение отправлено на сервер:', image.name);
+        console.log("Изображение отправлено на сервер:", image.name);
       }
     } catch (e) {
-      console.error('Ошибка отправки изображения:', e);
+      console.error("Ошибка отправки изображения:", e);
     }
   };
 
   const hasInitiative = participants.some((p) => p.initiative !== null);
   const combatParticipants = participants.filter((p) => p.inCombat === true);
-  const nonCombatParticipants = participants.filter((p) => p.inCombat !== true && !p.dead);
+  const nonCombatParticipants = participants.filter(
+    (p) => p.inCombat !== true && !p.dead,
+  );
   const deadParticipants = participants.filter((p) => p.dead);
 
   // Фильтруем только участников с инициативой
@@ -330,31 +344,37 @@ function DmPage({ onBack }) {
               id: Date.now(),
               initiative: null,
               inCombat: false,
-              statuses: []
-            }
-          ])
+              statuses: [],
+            },
+          ]);
         }}
         onRemoveWantedParticipant={(id) => {
-          setParticipants(participants.filter(p => p.id !== id))
+          setParticipants(participants.filter((p) => p.id !== id));
         }}
         onEditWantedParticipant={(participant) => {
-          setParticipants(participants.map(p =>
-            p.id === participant.id ? participant : p
-          ))
+          setParticipants(
+            participants.map((p) =>
+              p.id === participant.id ? participant : p,
+            ),
+          );
         }}
         onJoinCombat={(id, initiative) => {
-          setParticipants(participants.map(p =>
-            p.id === id ? {
-              ...p,
-              inCombat: true,
-              initiative: initiative !== null && initiative !== undefined ? initiative : p.initiative
-            } : p
-          ))
+          setParticipants(
+            participants.map((p) =>
+              p.id === id
+                ? {
+                    ...p,
+                    inCombat: initiative !== null,
+                    initiative: initiative !== null ? initiative : null,
+                  }
+                : p,
+            ),
+          );
         }}
         onReviveWantedParticipant={(id) => {
-          setParticipants(participants.map(p =>
-            p.id === id ? { ...p, dead: false } : p
-          ))
+          setParticipants(
+            participants.map((p) => (p.id === id ? { ...p, dead: false } : p)),
+          );
         }}
         images={images}
         onAddImage={handleAddImage}
@@ -387,12 +407,20 @@ function DmPage({ onBack }) {
           </div>
 
           {hasInitiative && (
-            <button className="start-combat-button" onClick={startCombat} title="Начать бой">
+            <button
+              className="start-combat-button"
+              onClick={startCombat}
+              title="Начать бой"
+            >
               <img src={swordsIcon} alt="Начать бой" className="swords-icon" />
             </button>
           )}
           {!hasInitiative && (
-            <button className="start-combat-button disabled" disabled title="Добавьте инициативу участникам">
+            <button
+              className="start-combat-button disabled"
+              disabled
+              title="Добавьте инициативу участникам"
+            >
               <img src={swordsIcon} alt="Начать бой" className="swords-icon" />
             </button>
           )}
